@@ -168,7 +168,7 @@ export class UserController {
     return req.body;
   }
 
-  @Patch(':/userId')
+  @Patch('/:userId')
   update(@Req() req: Request) {
     return req.body;
   }
@@ -185,14 +185,60 @@ export class UserController {
 }
 ```
 
-----
+---
 
 ## NEST CLI
 
-- ```bash
+-
+
+```bash
 nest g module modulename
 
+# create module
 nest g module user
+
+# create controller
+nest g controller user
+
+#create service or provider
+nest g s user
+
+
 ```
 
+## Providers in Nestjs
+
+--
+
+- Providers are fundamental to Nestjs
+
+- Providers are plain javascriptclasses that are declared as providers in a module.
+
+- Classes such as services, repositories, or helpers can be treated as providers simply by adding Nest's "@injectable()" decorator.
+
+- Providers can be injected into a class through the contructor and Nest  will handle resolving the dependencies, making dependency management extremely easy.
+
+Example of service class
+
+```Ts
+#cats.service.ts
+
+import {Injectable} from '@nestjs/common';
+import {Cat} './interfaces/cat.interface';
+
+@Injectable()
+export class CastService{
+
+  private readonly cats: Cat[] = [];
+
+  create(cat : Cat){
+    this.cats.push(cat);
+  }
+
+  findAll():Cat[]{
+    return this.cats;
+  }
+}
+
+```
 
