@@ -208,7 +208,7 @@ nest g s user
 
 ## Providers in Nestjs
 
---
+---
 
 - Providers are fundamental to Nestjs
 
@@ -216,7 +216,7 @@ nest g s user
 
 - Classes such as services, repositories, or helpers can be treated as providers simply by adding Nest's "@injectable()" decorator.
 
-- Providers can be injected into a class through the contructor and Nest  will handle resolving the dependencies, making dependency management extremely easy.
+- Providers can be injected into a class through the contructor and Nest will handle resolving the dependencies, making dependency management extremely easy.
 
 Example of service class
 
@@ -242,3 +242,127 @@ export class CastService{
 
 ```
 
+## What is Dependency Injection [DI] in NESTJS
+
+---
+
+- Dependency Injection (DI) is a design pattern used to make classes independent of their dependencies.
+  Instead of a class creating its own instances, NestJS injects them for you.
+
+- When class A uses some functionality of class B, then it is said that class A has a dependency of class B.
+
+- To use class B we need to create its object first
+- const b = new B();
+
+- But what if B id also depends on class C, then we need another object and so on
+
+- So, transferring the task of creating the object to someone else and directly using the depnedency is called dependency injection.
+
+- According to the principes,
+
+- A class should concentrate on fulfilling its responsibilities and not on creating objects that is requires.
+
+- And that's where dependency injection comes into play: It provides the class with the required objects.
+
+## Benifits of DI [Dependency Injection]
+
+- Helps in unit testing.
+
+- Boiler plate code is reduced, as initializing of dependencies is done by the injector component.
+
+- Extending the application become easier.
+
+- Helps to enable loose coupling, which is important in appliation programming.
+
+# DTO [Data transfer Object]
+
+- A DTO is a typescript class or interface that :
+  - Describe Shape of the data (what field it has, their types)
+  - Often includes validation rules using decorators from the class-validator and class-transformer package
+
+📦 Example
+Step 1: Install validation packages
+
+```bash
+npm install class-validator class-transformer
+```
+
+Step 2: Create a DTO
+
+```ts
+// create-user.dto.ts
+import { IsString, IsEmail, IsInt, MinLength } from 'class-validator';
+
+export class CreateUserDto {
+  @IsString()
+  @MinLength(2)
+  name: string;
+
+  @IsEmail()
+  email: string;
+
+  @IsInt()
+  age: number;
+}
+```
+
+⚙️ Step 3: Use the DTO in a Controller
+
+```ts
+// users.controller.ts
+import { Controller, Post, Body } from '@nestjs/common';
+import { CreateUserDto } from './create-user.dto';
+
+@Controller('users')
+export class UsersController {
+  @Post()
+  createUser(@Body() createUserDto: CreateUserDto) {
+    // Nest automatically validates the input if ValidationPipe is enabled
+    return {
+      message: 'User created successfully!',
+      data: createUserDto,
+    };
+  }
+}
+```
+
+🧰 Step 4: Enable Global Validation
+
+In your main entry file (main.ts):
+
+```ts
+import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new ValidationPipe());
+  await app.listen(3000);
+}
+bootstrap();
+```
+
+### ✅ Benefits of Using DTOs
+
+- Validation: Prevents invalid data from reaching your business logic.
+
+- Type safety: Provides clear contracts for incoming/outgoing data.
+
+- Cleaner code: Keeps controllers and services organized.
+
+- Transformation: Converts input strings (like "42") to proper types (number).
+
+
+🧠 Example: Update DTO (Partial fields)
+
+When updating, you may not want all fields required:
+
+```ts
+
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateUserDto } from './create-user.dto';
+
+export class UpdateUserDto extends PartialType(CreateUserDto) {}
+
+```
