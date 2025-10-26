@@ -355,7 +355,7 @@ bootstrap();
 
 
 🧠 Example: Update DTO (Partial fields)
-
+pipes and validation in nest js chatgpt
 When updating, you may not want all fields required:
 
 ```ts
@@ -366,3 +366,172 @@ import { CreateUserDto } from './create-user.dto';
 export class UpdateUserDto extends PartialType(CreateUserDto) {}
 
 ```
+
+## Pipes and Validation in NEST JS
+
+In NestJS, Pipes and Validation work together to handle input data transformation and validation efficiently before it reaches your controller logic. Let’s break this down clearly 👇
+
+🧩 What are Pipes in NestJS?
+
+Pipes are classes that implement the PipeTransform interface.
+They are used for:
+
+Validation – check if input data meets specific criteria.
+
+Transformation – automatically transform input data into a desired format or type.
+
+They can be applied at:
+
+Handler level (for a specific route)
+
+Controller level
+
+Global level (for all routes)
+
+
+⚙️ Creating a Custom Pipe
+
+Example: A pipe to validate that a value is an integer.
+
+```ts
+
+import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
+
+@Injectable()
+export class ParseIntPipe implements PipeTransform {
+  transform(value: any) {
+    const val = parseInt(value, 10);
+    if (isNaN(val)) {
+      throw new BadRequestException('Validation failed: value is not an integer');
+    }
+    return val;
+  }
+}
+```
+
+Usage in controller:
+
+```ts
+@Get(':id')
+getById(@Param('id', new ParseIntPipe()) id: number) {
+  return { id };
+}
+```
+
+🧰 Using Built-in Pipes
+
+### NestJS provides several built-in pipes:
+
+- ValidationPipe
+
+- ParseIntPipe
+
+- ParseBoolPipe
+
+- ParseUUIDPipe
+
+- DefaultValuePipe
+
+Example:
+
+```ts
+@Get(':id')
+getUser(@Param('id', ParseIntPipe) id: number) {
+  return this.userService.findOne(id);
+}
+```
+
+### ✅ Validation with DTOs and class-validator
+
+To simplify input validation, NestJS integrates with class-validator and class-transformer.
+
+Step 1: Install dependencies
+
+```bash
+npm install class-validator class-transformer
+
+```
+
+Step 2: Create a DTO
+
+```ts
+
+import { IsString, IsEmail, Length } from 'class-validator';
+
+export class CreateUserDto {
+  @IsString()
+  @Length(3, 20)
+  name: string;
+
+  @IsEmail()
+  email: string;
+}
+```
+
+Step 3: Use ValidationPipe
+
+```ts
+
+import { Controller, Post, Body, UsePipes, ValidationPipe } from '@nestjs/common';
+import { CreateUserDto } from './create-user.dto';
+
+@Controller('users')
+export class UsersController {
+  @Post()
+  @UsePipes(new ValidationPipe({ transform: true }))
+  createUser(@Body() createUserDto: CreateUserDto) {
+    return createUserDto;
+  }
+}
+```
+
+
+🌍 Global Validation Pipe
+
+To apply validation to all routes:
+
+```ts
+import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  await app.listen(3000);
+}
+bootstrap();
+```
+
+
+Options:
+
+whitelist: true → removes properties not defined in DTO.
+
+forbidNonWhitelisted: true → throws error for unknown properties.
+
+transform: true → auto-converts plain objects to DTO instances.
+
+🔄 Example Combined Usage
+
+```ts
+
+@Post(':id')
+updateUser(
+  @Param('id', ParseIntPipe) id: number,
+  @Body(new ValidationPipe()) updateUserDto: UpdateUserDto,
+) {
+  return this.userService.update(id, updateUserDto);
+}
+
+
+```
+
+🧠 Summary
+
+| Feature                   | Purpose                            | Example                           |
+| ------------------------- | ---------------------------------- | --------------------------------- |
+| **Pipe**                  | Transform or validate data         | `ParseIntPipe`, `ValidationPipe`  |
+| **DTO**                   | Defines structure and rules        | `CreateUserDto`                   |
+| **ValidationPipe**        | Uses class-validator to check DTOs | `@UsePipes(new ValidationPipe())` |
+| **Global ValidationPipe** | Auto validation for all endpoints  | `app.useGlobalPipes()`            |
