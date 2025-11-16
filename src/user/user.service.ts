@@ -28,9 +28,9 @@ export class UserService {
   //   };
   // }
 
-  update(body: UpdateUserDto, param: { userId: number }) {
+  update(body: UpdateUserDto, userId: number) {
     return {
-      userId: param.userId,
+      userId: userId,
       body: body,
     };
   }

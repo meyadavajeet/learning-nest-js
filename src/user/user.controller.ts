@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Req,
@@ -35,18 +36,25 @@ export class UserController {
   // update(@Req() req: Request, @Param() param: { userId: number }) {
   //   return this.userService.update(req, param);
   // }
-  update(@Body() body: UpdateUserDto, @Param() param: { userId: number }) {
-    return this.userService.update(body, param);
+  update(
+    @Body() body: UpdateUserDto,
+    @Param('userId', ParseIntPipe)  userId: number ,
+  ) {
+    return this.userService.update(body, userId);
   }
 
   @Get('/:userId')
-  getUser(@Param() params: { userId: number }) {
-    return this.userService.getUserById(params.userId);
+  // getUser(@Param() params: { userId: number }) {
+  //   return this.userService.getUserById(params.userId);
+  // }
+  // clearner version
+  getUser(@Param('userId', ParseIntPipe) userId: number) {
+    return this.userService.getUserById(userId);
   }
 
   @Delete('/:userId')
-  deleteUser(@Param() params: { userId: number }) {
-    return this.userService.deleteUser(params.userId);
+  deleteUser(@Param('userId', ParseIntPipe) userId: number) {
+    return this.userService.deleteUser(userId);
     return 'user id deleted';
   }
 }
