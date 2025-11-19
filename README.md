@@ -353,18 +353,15 @@ bootstrap();
 
 - Transformation: Converts input strings (like "42") to proper types (number).
 
-
 🧠 Example: Update DTO (Partial fields)
 pipes and validation in nest js chatgpt
 When updating, you may not want all fields required:
 
 ```ts
-
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateUserDto } from './create-user.dto';
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {}
-
 ```
 
 ## Pipes and Validation in NEST JS
@@ -388,13 +385,11 @@ Controller level
 
 Global level (for all routes)
 
-
 ⚙️ Creating a Custom Pipe
 
 Example: A pipe to validate that a value is an integer.
 
 ```ts
-
 import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
 
 @Injectable()
@@ -402,7 +397,9 @@ export class ParseIntPipe implements PipeTransform {
   transform(value: any) {
     const val = parseInt(value, 10);
     if (isNaN(val)) {
-      throw new BadRequestException('Validation failed: value is not an integer');
+      throw new BadRequestException(
+        'Validation failed: value is not an integer',
+      );
     }
     return val;
   }
@@ -455,7 +452,6 @@ npm install class-validator class-transformer
 Step 2: Create a DTO
 
 ```ts
-
 import { IsString, IsEmail, Length } from 'class-validator';
 
 export class CreateUserDto {
@@ -471,8 +467,13 @@ export class CreateUserDto {
 Step 3: Use ValidationPipe
 
 ```ts
-
-import { Controller, Post, Body, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { CreateUserDto } from './create-user.dto';
 
 @Controller('users')
@@ -484,7 +485,6 @@ export class UsersController {
   }
 }
 ```
-
 
 🌍 Global Validation Pipe
 
@@ -502,7 +502,6 @@ async function bootstrap() {
 }
 bootstrap();
 ```
-
 
 Options:
 
@@ -535,3 +534,38 @@ updateUser(
 | **DTO**                   | Defines structure and rules        | `CreateUserDto`                   |
 | **ValidationPipe**        | Uses class-validator to check DTOs | `@UsePipes(new ValidationPipe())` |
 | **Global ValidationPipe** | Auto validation for all endpoints  | `app.useGlobalPipes()`            |
+
+## Connect to MYSQL
+
+- Need to install this dependency
+
+- documentation link - [Database connection](https://docs.nestjs.com/techniques/database)
+
+```bash
+npm install --save @nestjs/typeorm typeorm mysql2
+```
+
+- Once the installation process is complete, we can import the TypeOrmModule into the root AppModule.
+
+```ts
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+@Module({
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: 'localhost',
+      port: 3306,
+      username: 'root',
+      password: 'root',
+      database: 'test',
+      entities: [],
+      synchronize: true,
+    }),
+  ],
+})
+export class AppModule {}
+```
+
+### Warning - Setting synchronize: true shouldn't be used in production - otherwise you can lose production data.
