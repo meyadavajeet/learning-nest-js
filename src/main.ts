@@ -9,4 +9,5 @@ async function bootstrap() {
   );
   await app.listen(process.env.PORT ?? 3000);
 }
-bootstrap();
+// explicitly ignore the returned promise to satisfy the no-floating-promises rule
+void bootstrap();
