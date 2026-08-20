@@ -38,7 +38,7 @@ export class UserController {
   // }
   update(
     @Body() body: UpdateUserDto,
-    @Param('userId', ParseIntPipe)  userId: number ,
+    @Param('userId', ParseIntPipe) userId: number,
   ) {
     return this.userService.update(body, userId);
   }
