@@ -23,4 +23,8 @@ export class UserService {
       throw error;
     }
   }
+
+  async findUserByEmail(email: string) {
+    return await this.userModel.findOne({ email });
+  }
 }
